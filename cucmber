@@ -1,0 +1,114 @@
+@javascript
+Feature: Todo List
+
+	Scenario: Creating a new todo list
+		When I create the following todo_list
+			| title       | September sessions 		|
+			| description | Session for cucucmber	|
+		Then I should see message "Todo list was successfully created."
+		And I should have the following todo_list
+			| title       			 | discription 						|
+			| September sessions | Session for cucucmber	|
+
+	Scenario: checking the name validation when Creating a new todo list
+		When I create the following todo_list
+			| title       |  						|
+			| description | Session for cucucmber	|
+		Then I should see message "Title can't be blank"
+
+    Scenario Outline: eating
+  		When I create the following todo_list
+				| title       | <start>     |
+				| description | <eat>       |
+  		Then I should see message <left>
+
+	  Examples:
+	    | start | eat | left |
+	    |    "12" |   "5" |    "Todo list was successfully created." |
+	    |     |   "5" |   "Title can't be blank" |
+		
+	@validation		
+	Scenario: Edit a todo list
+		Given the follwing 'TodoList' exist:
+			| title       | description 					| created_at  |
+			| test 1			| Session for cucucmber |	2020-11-03  | 
+			| test 2			| Session for cucucmber |	2020-11-03  |
+			| test 3			| Session for cucucmber |	2020-11-03  |
+			| test 4			| Session for cucucmber |	2020-11-03  |
+	  And I am on the edit_todo_list page for 'test 1'
+	  Then I edit the following fields
+	  	| title       | description 						|
+			| test 1 new  | Session for cucucmber 1	|
+		Then I should see message "Todo list was successfully updated."		
+		And I should have the following todo_list
+			| title       			 | discription 			    |
+			| test 1 new		     | Session for cucucmber	|		
+
+
+
+
+When("I create the following todo_list") do |table|
+  attributes =  table.rows_hash
+
+  visit new_todo_list_path
+
+  fill_in 'Title', with: attributes['title']
+  fill_in 'Description', with: attributes['description']
+
+  click_on 'Create Todo list'
+end
+
+Then("I should have the following todo_list") do |table|
+ attributes =  table.hashes
+ title = TodoList.find_by_title(attributes.first["title"]).title
+ expect(attributes.first["title"]).to eq(title)
+end
+
+Then("I should see message {string}") do |string|
+  expect(page).to have_text(string)
+end
+
+Given("the follwing {string} exist:") do |string, table|
+  model  = string.constantize
+  values = table.hashes
+  model.create(values)
+end
+
+And("I am on the edit_todo_list page for {string}") do |title|
+  todo_list = TodoList.find_by_title(title)
+  visit edit_todo_list_path(todo_list)
+end
+
+Then("I edit the following fields") do |table|
+  attributes = table.hashes
+
+  fill_in 'Title', with: attributes.first['title']
+  fill_in 'Description', with: attributes.first['description']
+
+  click_on 'Update Todo list'
+end
+
+
+# Adapted from https://stackoverflow.com/a/4682205
+Then /^I explore the app$/ do
+  require 'io/wait'
+  done = false
+  until done
+    if $stdin.ready?
+      line = $stdin.readline.strip
+      done = true if line.present?
+    end
+    sleep 1
+  end
+end			
+
+	  
+
+
+	
+		
+
+	  
+
+
+	
