@@ -1,9 +1,0 @@
-language: ruby
-rvm: 2.5.2
-
-install:
-  - bundle install --jobs=3 --retry=3
-
-before_script: 'bundle install'
-
-script: 'bundle exec cucumber'
